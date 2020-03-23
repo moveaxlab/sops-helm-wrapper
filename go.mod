@@ -1,4 +1,4 @@
-module bitbucket.com/elevenlab/argocd-helm-secrets
+module github.com/moveaxlab/sops-helm-wrapper
 
 go 1.13
 
