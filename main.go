@@ -40,7 +40,7 @@ func runHelm() (errs []error) {
 			return append(errs, fmt.Errorf("failed to find Helm binary 'helm'"))
 		}
 	}
-
+// change to support secrets under a sub directory
 	temporaryDirectory, err := ioutil.TempDir("", fmt.Sprintf("%s.", path.Base(os.Args[0])))
 
 	if err != nil {
