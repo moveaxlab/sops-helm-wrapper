@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -15,15 +16,15 @@ import (
 
 var (
 	valuesArgRegexp      *regexp.Regexp
-	secretFilenameRegexp *regexp.Regexp
+	secretFilenameRegex *regexp.Regexp
 )
 
 func init() {
 	valuesArgRegexp = regexp.MustCompile("^(-f|--values)(?:=(.+))?$")
-	secretFilenameRegexp = regexp.MustCompile("^(.*secrets(?:(?:-|\\.|_).+)?).yaml$")
+	secretFilenameRegex = regexp.MustCompile("^((?:.*/)?secrets(?:(?:-|\\.|_).+)?.yaml)$")
 }
 
-func runHelm() (errs []error) {
+func runHelmCommand() (errs []error) {
 	var helmPath string
 	var err error
 
@@ -72,9 +73,9 @@ func runHelm() (errs []error) {
 				break
 			}
 
-			if secretFilenameRegexpMatches := secretFilenameRegexp.FindStringSubmatch(filename); secretFilenameRegexpMatches != nil {
-				secretFilename := secretFilenameRegexpMatches[0]
-				cleartextSecretFilename := fmt.Sprintf("%s/%s.plain.yaml", temporaryDirectory, secretFilenameRegexpMatches[1])
+			if secretFilenameRegexMatches := secretFilenameRegex.FindStringSubmatch(filename); secretFilenameRegexMatches != nil {
+				secretFilename := secretFilenameRegexMatches[0]
+				cleartextSecretFilename := fmt.Sprintf("%s/%x", temporaryDirectory, sha256.Sum256([]byte(secretFilename)))
 
 				cleartextSecrets, err := decrypt.File(secretFilename, "yaml")
 
@@ -207,16 +208,15 @@ func runHelm() (errs []error) {
 }
 
 func main() {
-	errs := runHelm()
+	errs := runHelmCommand()
 
 	exitCode := 0
 
 	for _, err := range errs {
-		fmt.Fprintf(os.Stderr, "[helm-sops] Error: %s\n", err)
+		fmt.Fprintf(os.Stderr, "[sops] Error: %s\n", err)
 
 		exitCode = 1
 	}
 
 	os.Exit(exitCode)
 }
-
