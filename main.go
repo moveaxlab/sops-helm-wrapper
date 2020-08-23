@@ -21,7 +21,7 @@ var (
 
 func init() {
 	valuesArgRegexp = regexp.MustCompile("^(-f|--values)(?:=(.+))?$")
-	secretFilenameRegex = regexp.MustCompile("^((?:.*/)?secrets(?:(?:-|\\.|_).+)?.yaml)$")
+	secretFilenameRegex = regexp.MustCompile("^((?:.*/)?[0-9]*secrets(?:(?:-|\\.|_).+)?.yaml)$")
 }
 
 func runHelmCommand() (errs []error) {
